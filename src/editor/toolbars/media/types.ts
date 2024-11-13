@@ -19,6 +19,7 @@ export type MediaType = "image";
 
 export interface MediaFactoryConfig {
   onUploadImage(form: FormData): Promise<UploadResult>;
+  internalDomains?: string[];
 }
 
 export type MediaGroupComponent = ComponentType<CommonGroupProps<MediaType>> & {

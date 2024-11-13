@@ -6,6 +6,7 @@ export default function createMediaGroup(config: MediaFactoryConfig): MediaGroup
     <BaseMediaGroup
       {...props}
       onUploadImage={config.onUploadImage}
+      internalDomains={config.internalDomains}
     />
   );
 

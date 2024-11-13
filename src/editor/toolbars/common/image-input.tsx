@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { isAllowedUrl } from "./utils";
 import TextInput, { TextInputProps } from "./text-input";
 import Button from "./button";
 
@@ -19,10 +20,6 @@ export interface ImageInputProps extends Omit<TextInputProps, "type"> {
   previewSize?: "sm" | "md" | "lg";
   allowedDomains?: string[];
   infoTitle?: ReactNode;
-}
-
-function normalize(url: string) {
-  return url.toLowerCase().replace(/^(https?:)?(\/\/)?(www\.)?/, '').split('/')[0] + "/";
 }
 
 function ForwardImageInput(props: ImageInputProps, ref: ForwardedRef<HTMLInputElement>) {
@@ -61,48 +58,9 @@ function ForwardImageInput(props: ImageInputProps, ref: ForwardedRef<HTMLInputEl
     setCurrentValue(image);
     onChange?.(e);
 
-    if (!image.match(/^(\/|https?:\/\/|\/\/|blob:|data:image\/|\.\.?\/)/)) {
+    if (!isAllowedUrl(image, allowedDomains)) {
       onInvalidURL?.(image);
-      return;
     }
-
-    const isRelative = image.startsWith("/") && !image.startsWith("//");
-    const isBackForward = image.startsWith("../") || image.startsWith("./");
-    const isBase64 = image.startsWith("data:image/");
-
-    if (isRelative || isBackForward || isBase64) {
-      return;
-    }
-
-    const isProtocol = image.startsWith("http://") || image.startsWith("https://") || image.startsWith("//");
-    const isBlob = image.startsWith("blob:");
-
-    if (isProtocol || isBlob) {
-      if (!allowedDomains?.length) {
-        onInvalidURL?.(image);
-        return;
-      }
-
-      let domain;
-
-      if (isBlob) {
-        const blob = new URL(image);
-        domain = normalize(blob.pathname);
-      } else {
-        domain = normalize(image);
-      }
-
-      const isValid = allowedDomains.some((allowed) => {
-        const source = normalize(allowed);
-        const allowedParts = source.startsWith("*.") ? source.replace("*.", '') : source;
-        return domain === allowedParts;
-      });
-
-      isValid || onInvalidURL?.(image);
-      return;
-    }
-
-    onInvalidURL?.(image);
   };
 
   const handleChangeFile = async (e: ChangeEvent<HTMLInputElement>) => {

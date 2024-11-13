@@ -1,18 +1,22 @@
 import { FC } from "react";
 import { Editor } from "@tiptap/react";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, RefreshCw, Trash2 } from "lucide-react";
 import Divider from "../divider";
 
 export interface ImageFloatingProps {
   editor: Editor;
   updatePosition(): void;
-  getPos: () => number;
+  getPos(): number;
+  onSync?(): Promise<void>;
+  showSync?: boolean;
 }
 
 const ImageFloating: FC<ImageFloatingProps> = (props) => {
   const {
     editor,
     getPos,
+    showSync,
+    onSync,
   } = props;
 
   const handleEdit = () => {
@@ -72,6 +76,18 @@ const ImageFloating: FC<ImageFloatingProps> = (props) => {
       >
         <Trash2 className="w-4 h-4" />
       </button>
+      {showSync && (
+        <>
+          <Divider className="mx-0.5" />
+          <button
+            type="button"
+            onClick={onSync}
+            className="p-1.5 hover:bg-white/90 dark:hover:bg-gray-600/90"
+          >
+            <RefreshCw className="w-4 h-4" />
+          </button>
+        </>
+      )}
     </div>
   );
 };

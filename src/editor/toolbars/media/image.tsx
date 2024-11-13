@@ -1,6 +1,7 @@
 import { createRoot } from "react-dom/client";
 import { Image as TiptapImage } from "@tiptap/extension-image";
 import ImageFloating from "./image-floating";
+import { isAllowedUrl } from "../common/utils";
 
 const Image = TiptapImage.extend({
   addAttributes() {
@@ -27,6 +28,34 @@ const Image = TiptapImage.extend({
       
       // Setup position handlers
       const { updatePosition, cleanup } = setupPositionHandlers(wrapperDiv, portalContainer);
+
+      const internalDomains = editor.extensionManager.options?.image?.internalDomains;
+     
+      const showSync = HTMLAttributes.src && !isAllowedUrl(HTMLAttributes.src, internalDomains);
+
+      const handleSync = async () => {
+        const onUploadImage = (editor.options as any).onUploadImage;
+        if (!onUploadImage || !getPos) return;
+
+        try {
+          const response = await fetch(HTMLAttributes.src);
+          const blob = await response.blob();
+          const formData = new FormData();
+          formData.append('file', blob);
+          
+          const result = await onUploadImage(formData);
+          if (result.url) {
+            editor
+              .chain()
+              .setNodeSelection(getPos())
+              .updateAttributes('image', { src: result.url })
+              .run();
+          }
+        } catch (error) {
+          console.error('Failed to sync image:', error);
+        }
+      };
+
       
       // Create floating controls
       const root = createRoot(portalContainer);
@@ -35,6 +64,8 @@ const Image = TiptapImage.extend({
           editor={editor}
           getPos={getPos}
           updatePosition={updatePosition}
+          showSync={showSync}
+          onSync={handleSync}
         />
       );
 
