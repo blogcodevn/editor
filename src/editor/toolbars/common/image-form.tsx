@@ -1,12 +1,13 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { ChangeEvent, FC, PropsWithChildren, useEffect, useState } from "react";
+import { cn } from "@/lib/utils";
 import ImageInput, { ImageInputProps } from "./image-input";
 import TextInput, { TextInputProps } from "./text-input";
-import { cn } from "@/lib/utils";
 
 export interface ImageFormValue {
   image: string;
   alt: string;
+  caption: string;
 }
 
 export interface ImageFormProps {
@@ -16,6 +17,7 @@ export interface ImageFormProps {
   controlProps?: {
     image?: ImageInputProps;
     alt?: TextInputProps;
+    caption?: TextInputProps;
   };
 }
 
@@ -25,18 +27,24 @@ const ImageForm: FC<PropsWithChildren<ImageFormProps>> = (props) => {
   const [ currentValue, setCurrentValue ] = useState({
     image: value?.image ?? "",
     alt: value?.alt ?? "",
+    caption: value?.caption ?? "",
   });
 
   useEffect(() => {
-    if (value?.image !== currentValue.image || value?.alt !== currentValue.alt) {
+    if (
+      value?.image !== currentValue.image ||
+      value?.alt !== currentValue.alt ||
+      value?.caption !== currentValue.caption
+    ) {
       setCurrentValue({
         image: value?.image ?? "",
         alt: value?.alt ?? "",
+        caption: value?.caption ?? "",
       });
     }
   }, [value]);
 
-  const handleChange = (field: "image" | "alt") => (e: ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (field: "image" | "alt" | "caption") => (e: ChangeEvent<HTMLInputElement>) => {
     const nextValue = {
       ...currentValue,
       [field]: e.target.value,
@@ -70,6 +78,16 @@ const ImageForm: FC<PropsWithChildren<ImageFormProps>> = (props) => {
         labelPosition={controlProps.alt?.labelPosition ?? "left"}
         labelAlign={controlProps.alt?.labelAlign ?? "right"}
         size={controlProps.alt?.size ?? "sm"}
+      />
+      <TextInput
+        {...controlProps.caption}
+        value={currentValue.caption}
+        onChange={handleChange("caption")}
+        name={controlProps.caption?.name ?? "caption"}
+        label={controlProps.caption?.label ?? "Caption"}
+        labelPosition={controlProps.caption?.labelPosition ?? "left"}
+        labelAlign={controlProps.caption?.labelAlign ?? "right"}
+        size={controlProps.caption?.size ?? "sm"}
       />
       {children}
     </div>

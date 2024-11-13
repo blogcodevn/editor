@@ -2,16 +2,16 @@ import { FC, useCallback, useMemo, useRef, useState } from "react";
 import { Image } from "lucide-react";
 import { CommonGroupProps, EditorIcon } from "../../types";
 import { MediaFactoryConfig, MediaType } from "./types";
+import { Label } from "@/components/ui/label";
+import { DialogFooter } from "@/components/ui/dialog";
 import Modal, { ModalRef } from "../common/modal";
 import ImageForm, { ImageFormValue } from "../common/image-form";
 import Button from "../common/button";
 import Group from "../common/group";
 import ToolbarButton from "../common/toolbar-button";
-import "./media.css";
-import { DialogFooter } from "@/components/ui/dialog";
 import TextInput from "../common/text-input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
+import Select from "../common/select";
+import "./media.css";
 
 export interface MediaGroupIcons {
   image?: EditorIcon;
@@ -58,11 +58,33 @@ const MediaGroup: FC<MediaGroupProps> = (props) => {
       editor
         .chain()
         .focus()
-        .setImage({ 
+        .setImage({
           src: formValue.image,
-          alt: formValue.alt,
+          alt: formValue.alt || '',
+          title: formValue.caption,
         })
         .run();
+  
+      if (formValue.width || formValue.height || formValue.objectFit) {
+        const node = editor.view.state.selection.$anchor.nodeAfter;
+        const pos = editor.view.state.selection.$anchor.pos;
+  
+        if (node) {
+          const style = [];
+          if (formValue.width) style.push(`width: ${formValue.width}`);
+          if (formValue.height) style.push(`height: ${formValue.height}`);
+          if (formValue.objectFit) style.push(`object-fit: ${formValue.objectFit}`);
+  
+          editor
+            .chain()
+            .setNodeSelection(pos)
+            .updateAttributes('image', {
+              style: style.join('; ')
+            })
+            .run();
+        }
+      }
+  
       modalRef.current?.close();
     } catch (error) {
       console.error('Failed to insert image:', error);
@@ -130,24 +152,21 @@ const MediaGroup: FC<MediaGroupProps> = (props) => {
                   value={formValue.height}
                   onChange={(e) => setFormValue(prev => ({ ...prev, height: e.target.value }))}
                 />
-                <div className="">
-                  <Label className="block mb-1">Object Fit</Label>
-                  <Select
-                    value={formValue.objectFit}
-                    onValueChange={(value) => setFormValue(prev => ({ ...prev, objectFit: value }))}
-                  >
-                    <SelectTrigger className="h-8 text-xs">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="cover">Cover</SelectItem>
-                      <SelectItem value="contain">Contain</SelectItem>
-                      <SelectItem value="fill">Fill</SelectItem>
-                      <SelectItem value="none">None</SelectItem>
-                      <SelectItem value="scale-down">Scale Down</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                <Select
+                  options={[
+                    { value: "auto", label: "Auto" },
+                    { value: "cover", label: "Cover" },
+                    { value: "contain", label: "Contain" },
+                    { value: "fill", label: "Fill" },
+                    { value: "none", label: "None" },
+                    { value: "scale-down", label: "Scale Down" },
+                  ]}
+                  value={formValue.objectFit}
+                  onValueChange={(value) => setFormValue(prev => ({ ...prev, objectFit: value }))}
+                  label="Object Fit"
+                  size="sm"
+                  
+                />
               </div>
             </div>
           </ImageForm>

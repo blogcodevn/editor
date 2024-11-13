@@ -1,11 +1,10 @@
-import Image from '@tiptap/extension-image';
+import Image from "./image";
 
 const MediaExtensions = [
   Image.configure({
     HTMLAttributes: {
       class: 'media-image'
     },
-    allowBase64: true,
   }),
 ];
 

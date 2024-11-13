@@ -19,3 +19,7 @@ export interface GroupPropsInterface<Type, Icons = Record<string, EditorIcon>> {
 
 export type CommonGroupProps<Type, Icons = Record<string, EditorIcon> | undefined> =
   PropsWithEditor<GroupPropsInterface<Type, Icons>>;
+
+export type ControlSize = "sm" | "default" | "lg";
+
+export type RoundedSize = "xs" | "sm" | "md" | "lg" | "xl";
