@@ -1,0 +1,22 @@
+.blogcode-editor-content > [contenteditable=true] {
+  & .code-block-wrapper {
+    position: relative;
+    margin: 1rem 0;
+  }
+
+  & .code-block-wrapper.selected::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    border: 2px solid theme('colors.primary.DEFAULT');
+    border-radius: 4px;
+    pointer-events: none;
+  }
+
+  & .code-block-wrapper pre {
+    margin: 0;
+  }
+}

@@ -1,0 +1,39 @@
+.blogcode-editor-content {
+  height: 100%;
+  overflow: hidden;
+
+  & > [contenteditable=true] {
+    height: 100%;
+    color: #fff;
+    padding: 0.5rem;
+    outline: 0;
+    height: 100%;
+    overflow: auto;
+  }
+}
+
+.blogcode-editor-content .hljs-tag {
+  color: #569cd6;
+}
+.blogcode-editor-content .hljs-name {
+  color: #569cd6;
+}
+.blogcode-editor-content .hljs-attr {
+  color: #9cdcfe;
+}
+.blogcode-editor-content .hljs-string {
+  color: #ce9178;
+}
+.blogcode-editor-content .hljs-keyword {
+  color: #c586c0;
+}
+.blogcode-editor-content .hljs-function {
+  color: #dcdcaa;
+}
+.blogcode-editor-content .hljs-variable {
+  color: #9cdcfe;
+}
+[data-floating-controls] {
+  z-index: 50;
+  transition: opacity 0.2s ease;
+}

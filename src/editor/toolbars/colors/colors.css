@@ -1,0 +1,6 @@
+.blogcode-editor-content > [contenteditable=true] {
+  & mark {
+    border-radius: 0.125rem;
+    padding: 0.125rem 0;
+  }
+}

@@ -1,0 +1,71 @@
+.blogcode-editor-content > [contenteditable=true] {
+  & .table-wrapper {
+    position: relative;
+    margin: 1rem 0;
+  }
+  
+  & table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  & table[data-full-width] {
+    width: 100%;
+  }
+  
+  & table:not([data-full-width]) {
+    width: auto;
+  }
+  
+  & table[data-centered] {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  & .table-wrapper.selected::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    border: 2px solid theme('colors.primary.DEFAULT');
+    border-radius: 4px;
+    pointer-events: none;
+  }
+  
+  & .table-floating-controls {
+    position: fixed; /* Thay vì absolute vì dùng portal */
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    z-index: 50;
+    pointer-events: none;
+  }
+  
+  & .table-wrapper.selected .table-floating-controls {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  
+  /* Khi table scroll ra khỏi viewport */
+  & .table-wrapper.selected .table-floating-controls.out-of-view {
+    opacity: 0;
+    pointer-events: none;
+  }
+  
+  & table caption {
+    caption-side: bottom;
+    margin-top: 0.5rem;
+    text-align: center;
+    font-style: italic;
+    color: #6c757d;
+  }
+  
+  /* Dark mode */
+  @media (prefers-color-scheme: dark) {
+    & table caption {
+      color: #a0aec0;
+    }
+  }
+}
+
