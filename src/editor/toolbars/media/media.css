@@ -1,13 +1,30 @@
 .blogcode-editor-content > [contenteditable=true] {
-  & .media-image {
-    display: inline-block;
+  & .media-image-wrapper {
     position: relative;
+    display: inline-block;
     max-width: 100%;
-    height: auto;
-    margin: 0 auto;
   }
 
-  & .media-image.ProseMirror-selectednode {
+  & .media-image {
+    display: block;
+    max-width: 500px;
+    height: auto;
+  }
+
+  & .media-image-wrapper.ProseMirror-selectednode {
     outline: 2px solid theme('colors.primary.DEFAULT');
+  }
+
+  & .media-controls {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    display: none;
+    gap: 4px;
+    z-index: 50;
+  }
+
+  & .media-image-wrapper.ProseMirror-selectednode .media-controls {
+    display: flex;
   }
 }

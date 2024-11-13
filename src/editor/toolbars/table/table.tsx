@@ -7,7 +7,7 @@ const Table = TiptapTable.extend({
     return {
       ...this.parent?.(),
       isFullWidth: {
-        default: true,  // Default là full width
+        default: true,
         parseHTML: element => element.hasAttribute('data-full-width'),
         renderHTML: attributes => {
           return attributes.isFullWidth ? { 'data-full-width': '' } : {}

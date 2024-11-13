@@ -1,11 +1,11 @@
-import { FC, useCallback, useMemo, useRef, useState } from "react";
+import { FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Image } from "lucide-react";
 import { CommonGroupProps, EditorIcon } from "../../types";
-import { MediaFactoryConfig, MediaType } from "./types";
+import { ImageValue, MediaFactoryConfig, MediaType } from "./types";
 import { Label } from "@/components/ui/label";
 import { DialogFooter } from "@/components/ui/dialog";
 import Modal, { ModalRef } from "../common/modal";
-import ImageForm, { ImageFormValue } from "../common/image-form";
+import ImageForm from "../common/image-form";
 import Button from "../common/button";
 import Group from "../common/group";
 import ToolbarButton from "../common/toolbar-button";
@@ -15,12 +15,6 @@ import "./media.css";
 
 export interface MediaGroupIcons {
   image?: EditorIcon;
-}
-
-interface ImageValue extends ImageFormValue {
-  width: number | string;
-  height: number | string;
-  objectFit: string;
 }
 
 export type MediaGroupProps = CommonGroupProps<MediaType, MediaGroupIcons> & MediaFactoryConfig;
@@ -41,6 +35,25 @@ const MediaGroup: FC<MediaGroupProps> = (props) => {
     }
   ], [icons]);
 
+  const events = useMemo(() => ({
+    handleImageEdit: (value: Partial<ImageValue>) => {
+      setFormValue(value);
+      modalRef.current?.open();
+    }
+  }), []);
+
+  useEffect(() => {
+    if (editor) {
+      const imageExtension = editor.extensionManager.extensions.find(ext => ext.name === 'image');
+      if (imageExtension) {
+        imageExtension.options = {
+          ...imageExtension.options,
+          handleImageEdit: events.handleImageEdit
+        };
+      }
+    }
+  }, [editor, events]);
+
   const isIncluded = useCallback(
     (type: MediaType) => !exclude.includes(type),
     [exclude]
@@ -52,45 +65,49 @@ const MediaGroup: FC<MediaGroupProps> = (props) => {
 
   const handleInsert = async () => {
     if (!formValue.image || !editor) return;
-
+   
     setLoading(true);
     try {
+      const style = [];
+      if (formValue.width) {
+        // Kiểm tra nếu là số thì thêm px, ngược lại giữ nguyên (có thể là %, rem, etc)
+        const width = !isNaN(Number(formValue.width)) ? `${formValue.width}px` : formValue.width;
+        style.push(`width: ${width}`);
+      }
+      if (formValue.height) {
+        const height = !isNaN(Number(formValue.height)) ? `${formValue.height}px` : formValue.height;
+        style.push(`height: ${height}`);
+      }
+      if (formValue.objectFit) style.push(`object-fit: ${formValue.objectFit}`);
+   
       editor
         .chain()
         .focus()
         .setImage({
           src: formValue.image,
-          alt: formValue.alt || '',
+          alt: formValue.alt,
           title: formValue.caption,
         })
         .run();
-  
-      if (formValue.width || formValue.height || formValue.objectFit) {
-        const node = editor.view.state.selection.$anchor.nodeAfter;
-        const pos = editor.view.state.selection.$anchor.pos;
-  
-        if (node) {
-          const style = [];
-          if (formValue.width) style.push(`width: ${formValue.width}`);
-          if (formValue.height) style.push(`height: ${formValue.height}`);
-          if (formValue.objectFit) style.push(`object-fit: ${formValue.objectFit}`);
-  
-          editor
-            .chain()
-            .setNodeSelection(pos)
-            .updateAttributes('image', {
-              style: style.join('; ')
-            })
-            .run();
-        }
+   
+      // Cập nhật thêm style và caption
+      const node = editor.state.doc.nodeAt(editor.state.selection.$anchor.pos);
+      if (node) {
+        editor
+          .chain()
+          .updateAttributes('image', {
+            style: style.length > 0 ? style.join('; ') : null,
+            caption: formValue.caption
+          })
+          .run();
       }
-  
+   
       modalRef.current?.close();
     } catch (error) {
       console.error('Failed to insert image:', error);
     }
     setLoading(false);
-  };
+   };
 
   const renderButton = useCallback(
     (item: typeof items[number]) => {
