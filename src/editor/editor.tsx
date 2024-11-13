@@ -8,9 +8,17 @@ import { MarkdownExtensions, MarkdownGroup } from "./toolbars/markdown";
 import { TableExtensions, TableGroup } from "./toolbars/table";
 import { HeadingGroup } from "./toolbars/heading";
 import { HistoryGroup } from "./toolbars/history";
+import { MediaExtensions, createMediaGroup } from "./toolbars/media";
 import Toolbar from "./toolbars/toolbar";
 import StarterKit from "@tiptap/starter-kit";
 import "./editor.css";
+import { TooltipProvider } from "@/components/ui/tooltip";
+
+const MediaGroup = createMediaGroup({
+  onUploadImage: async () => {
+    return await new Promise((resolve) => setTimeout(() => resolve({ url: "..." }), 2000));
+  }
+});
 
 const group = [
   BasicGroup,
@@ -19,6 +27,7 @@ const group = [
   BlockGroup,
   TableGroup,
   MarkdownGroup,
+  MediaGroup,
   HistoryGroup,
 ] as ComponentType<CommonGroupProps<string>>[];
 
@@ -37,6 +46,7 @@ const Editor: FC<EditorProps> = (props) => {
       ...ColorsExtensions,
       ...BlockExtensions,
       ...TableExtensions,
+      ...MediaExtensions,
       ...MarkdownExtensions
     ],
   });
@@ -63,9 +73,11 @@ const Editor: FC<EditorProps> = (props) => {
 
   return (
     <div className="w-full h-full overflow-hidden flex flex-col">
-      <Toolbar editor={editor} group={group} />
-      <EditorContent editor={editor} className="blogcode-editor-content" />
-      {!!name && <input type="hidden" name={name} />}
+      <TooltipProvider>
+        <Toolbar editor={editor} group={group} />
+        <EditorContent editor={editor} className="blogcode-editor-content" />
+        {!!name && <input type="hidden" name={name} />}
+      </TooltipProvider>
     </div>
   );
 };

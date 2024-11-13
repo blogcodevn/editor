@@ -1,0 +1,13 @@
+.blogcode-editor-content > [contenteditable=true] {
+  & .media-image {
+    display: inline-block;
+    position: relative;
+    max-width: 100%;
+    height: auto;
+    margin: 0 auto;
+  }
+
+  & .media-image.ProseMirror-selectednode {
+    outline: 2px solid theme('colors.primary.DEFAULT');
+  }
+}

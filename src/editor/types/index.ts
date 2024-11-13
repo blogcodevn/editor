@@ -17,5 +17,5 @@ export interface GroupPropsInterface<Type, Icons = Record<string, EditorIcon>> {
   icons?: Icons;
 }
 
-export type CommonGroupProps<Type, Icons = Record<string, EditorIcon> | null | undefined> =
+export type CommonGroupProps<Type, Icons = Record<string, EditorIcon> | undefined> =
   PropsWithEditor<GroupPropsInterface<Type, Icons>>;
