@@ -18,6 +18,11 @@ const Markdown = CodeBlockLowlight.extend({
             class: `language-${attributes.language || "plain"}`,
           };
         }
+      },
+      content: {
+        default: "",
+        parseHTML: element => element.textContent,
+        renderHTML: () => ({})
       }
     };
   },
@@ -29,11 +34,18 @@ const Markdown = CodeBlockLowlight.extend({
       const pre = document.createElement("pre");
       const code = document.createElement("code");
 
-      const language = node.attrs.language || "plain";
+      const isMermaid = node.attrs.language === 'mermaid';
+      const language = isMermaid
+        ? 'mermaid'
+        : (node.attrs.language || "plain");
       const className = `language-${language}`;
 
       pre.classList.add(className);
       code.classList.add(`${className}-inner`);
+
+      if (isMermaid) {
+        pre.setAttribute('data-diagram-type', node.attrs.content?.split('\n')[0] || 'erDiagram');
+      }
 
       Object.entries(HTMLAttributes).forEach(([key, value]) => {
         pre.setAttribute(key, value);

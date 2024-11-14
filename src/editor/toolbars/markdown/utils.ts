@@ -6,8 +6,28 @@ import languages from "./languages";
 
 export const lowlight = createLowlight(languages);
 
+export function handleMermaid(code: string): string {
+  try {
+    // Basic syntax highlighting for mermaid
+    return code.split('\n').map(line => {
+      if (line.trim().startsWith('erDiagram') || line.includes('flowchart')) {
+        return `<span class="hljs-keyword">${line}</span>`;
+      }
+      // Add more syntax highlighting rules for mermaid here
+      return line;
+    }).join('\n');
+  } catch (e) {
+    console.warn('Failed to highlight mermaid code.', e);
+    return code;
+  }
+}
+
 export function handleJSX(code: string, baseLanguage: "javascript" | "typescript") {
   try {
+    if (baseLanguage.includes('mermaid')) {
+      return handleMermaid(code);
+    }
+
     const baseResult = lowlight.highlight(baseLanguage, code);
     const xmlResult = lowlight.highlight('xml', code);
 

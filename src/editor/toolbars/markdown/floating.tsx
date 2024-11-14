@@ -20,10 +20,17 @@ const MarkdownFloating: FC<MarkdownFloatingProps> = (props) => {
   const [ search, setSearch ] = useState("");
 
   const filteredLanguages = useMemo(() => {
+    if (search === '') {
+      if (language === 'mermaid') {
+        // Chỉ hiển thị các mermaid diagrams khi đang ở mermaid
+        return ['erDiagram', 'flowchart TD', 'flowchart LR', 'sequenceDiagram', 'classDiagram']
+      }
+      return Object.keys(languages).sort();
+    }
     return Object.keys(languages).filter((lang) => {
       return lang.toLowerCase().includes(search.toLowerCase())
     }).sort();
-  }, [search]);
+  }, [search, language]);
 
   useEffect(() => {
     isOpen && updatePosition();
@@ -40,13 +47,25 @@ const MarkdownFloating: FC<MarkdownFloatingProps> = (props) => {
     setIsOpen((prev) => !prev);
   };
 
-  const updateLanguage = (language: string) => () => {
-    editor
-      .chain()
-      .focus()
-      .setNodeSelection(getPos())
-      .updateAttributes("codeBlock", { language })
-      .run();
+  const updateLanguage = (lang: string) => () => {
+    if (language === 'mermaid') {
+      // Nếu đang là mermaid, update content thay vì language
+      editor
+        .chain()
+        .focus()
+        .setNodeSelection(getPos())
+        .updateAttributes('codeBlock', { 
+          content: `${lang}\n  ` 
+        })
+        .run();
+    } else {
+      editor
+        .chain()
+        .focus()
+        .setNodeSelection(getPos())
+        .updateAttributes('codeBlock', { language: lang })
+        .run();
+    }
     setIsOpen(false);
   }
 

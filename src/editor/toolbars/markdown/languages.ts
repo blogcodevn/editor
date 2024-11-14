@@ -389,6 +389,12 @@ const languages = {
   html: xml,
   ts: typescript,
   js: javascript,
+  mermaid: markdown,
+  "er-diagram": markdown,
+  "flowchart-td": markdown,
+  "flowchart-lr": markdown,
+  "sequence-diagram": markdown,
+  "class-diagram": markdown,
 };
 
 export default languages;
