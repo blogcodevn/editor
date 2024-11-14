@@ -8,15 +8,15 @@ import { MarkdownExtensions, MarkdownGroup } from "./toolbars/markdown";
 import { TableExtensions, TableGroup } from "./toolbars/table";
 import { HeadingGroup } from "./toolbars/heading";
 import { HistoryGroup } from "./toolbars/history";
-import { MediaExtensions, createMediaGroup } from "./toolbars/media";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { mediaFactory } from "./toolbars/media";
 import Toolbar from "./toolbars/toolbar";
 import StarterKit from "@tiptap/starter-kit";
 import "./editor.css";
-import { TooltipProvider } from "@/components/ui/tooltip";
 
-const MediaGroup = createMediaGroup({
+const { MediaGroup, MediaExtensions } = mediaFactory({
   onUploadImage: async () => {
-    return await new Promise((resolve) => setTimeout(() => resolve({ url: "..." }), 2000));
+    return await new Promise((resolve) => setTimeout(() => resolve({ url: "/vercel.svg" }), 2000));
   }
 });
 
@@ -58,7 +58,6 @@ const Editor: FC<EditorProps> = (props) => {
 
         group.forEach((Group) => {
           if ("parser" in Group && typeof Group.parser === "function") {
-            console.log(Group.displayName, Group.parser);
             content = Group.parser(content);
           }
         });

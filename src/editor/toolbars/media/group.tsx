@@ -1,5 +1,5 @@
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Image } from "lucide-react";
+import { Image, Link } from "lucide-react";
 import { CommonGroupProps, EditorIcon } from "../../types";
 import { ImageValue, MediaFactoryConfig, MediaType } from "./types";
 import { Label } from "@/components/ui/label";
@@ -12,9 +12,11 @@ import ToolbarButton from "../common/toolbar-button";
 import TextInput from "../common/text-input";
 import Select from "../common/select";
 import "./media.css";
+import LinkForm, { LinkFormValue } from "./link-form";
 
 export interface MediaGroupIcons {
   image?: EditorIcon;
+  link?: EditorIcon;
 }
 
 export type MediaGroupProps = CommonGroupProps<MediaType, MediaGroupIcons> & MediaFactoryConfig;
@@ -26,14 +28,57 @@ const MediaGroup: FC<MediaGroupProps> = (props) => {
   const [loading, setLoading] = useState(false);
   const [formValue, setFormValue] = useState<Partial<ImageValue>>({});
 
+  const linkModalRef = useRef<ModalRef>(null);
+  const [linkLoading, setLinkLoading] = useState(false);
+  const [linkValue, setLinkValue] = useState<Partial<LinkFormValue>>({});
+
+  const handleClickLink = useCallback(() => {
+    if (!editor) return;
+
+    if (editor.isActive('link')) {
+      const attrs = editor.getAttributes('link');
+      const text = editor.state.doc.textBetween(
+        editor.state.selection.$from.pos,
+        editor.state.selection.$to.pos,
+        '',
+      );
+      setLinkValue({
+        url: attrs.href,
+        text,
+        title: attrs.title,
+        target: attrs.target || '_blank',
+        rel: attrs.rel,
+        class: attrs.class,
+      });
+    } else {
+      const text = editor.state.doc.textBetween(
+        editor.state.selection.$from.pos,
+        editor.state.selection.$to.pos,
+        '',
+      );
+      setLinkValue({ 
+        text, 
+        target: '_blank', 
+        title: text,
+      });
+    }
+    linkModalRef.current?.open();
+  }, [editor]);
+
   const items = useMemo(() => [
+    {
+      type: "link" as const,
+      Icon: icons.link || Link,
+      onClick: handleClickLink,
+      active: editor?.isActive('link') || false,
+    },
     {
       type: "image" as const,
       Icon: icons.image || Image,
       onClick: () => modalRef.current?.open(),
       active: false,
-    }
-  ], [icons]);
+    },
+  ], [icons, editor, handleClickLink]);
 
   const events = useMemo(() => ({
     handleImageEdit: (value: Partial<ImageValue>) => {
@@ -63,7 +108,7 @@ const MediaGroup: FC<MediaGroupProps> = (props) => {
     setFormValue({});
   }, []);
 
-  const handleInsert = async () => {
+  const handleInsertImage = async () => {
     if (!formValue.image || !editor) return;
    
     setLoading(true);
@@ -107,7 +152,41 @@ const MediaGroup: FC<MediaGroupProps> = (props) => {
       console.error('Failed to insert image:', error);
     }
     setLoading(false);
-   };
+  };
+
+  const handleInsertLink = () => {
+    if (!linkValue.url || !editor) return;
+
+    setLinkLoading(true);
+    try {
+      const attrs = {
+        href: linkValue.url,
+        title: linkValue.title || null,
+        target: linkValue.target || null,
+        rel: linkValue.rel || null,
+        class: linkValue.class || null
+      };
+
+      if (linkValue.text && !editor.isActive('link')) {
+        // Insert link mới với text mới
+        editor.chain()
+          .focus()
+          .insertContent(linkValue.text)
+          .setLink(attrs)
+          .run();
+      } else {
+        // Update link hiện tại hoặc convert selection thành link
+        editor.chain()
+          .focus()
+          .setLink(attrs)
+          .run();
+      }
+      linkModalRef.current?.close();
+    } catch (error) {
+      console.error('Failed to insert/update link:', error);
+    }
+    setLinkLoading(false);
+  };
 
   const renderButton = useCallback(
     (item: typeof items[number]) => {
@@ -197,9 +276,41 @@ const MediaGroup: FC<MediaGroupProps> = (props) => {
               Cancel
             </Button>
             <Button
-              onClick={handleInsert}
+              onClick={handleInsertImage}
               loading={loading}
               disabled={!formValue.image}
+              fullWidth={false}
+              size="sm"
+            >
+              Insert
+            </Button>
+          </DialogFooter>
+        </div>
+      </Modal>
+      <Modal
+        ref={linkModalRef}
+        title="Insert Link"
+        onClose={() => setLinkValue({})}
+      >
+        <div className="space-y-4">
+          <LinkForm
+            value={linkValue}
+            onChange={setLinkValue}
+          />
+          
+          <DialogFooter className="border-t border-gray-300 dark:border-gray-700 p-4">
+            <Button
+              variant="outline"
+              onClick={() => linkModalRef.current?.close()}
+              fullWidth={false}
+              size="sm"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleInsertLink}
+              loading={linkLoading}
+              disabled={!linkValue.url}
               fullWidth={false}
               size="sm"
             >

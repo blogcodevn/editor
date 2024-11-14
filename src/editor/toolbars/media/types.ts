@@ -9,13 +9,21 @@ declare module '@tiptap/core' {
   }
 }
 
-declare module '@tiptap/extension-image' {
-  interface ImageOptions {
-    handleImageEdit?: (value: Partial<ImageValue>) => void;
+declare module '@tiptap/react' {
+  interface EditorOptions {
+    internalDomains?: string[];
+    onUploadImage?: (formData: FormData) => Promise<UploadResult>;
   }
 }
 
-export type MediaType = "image";
+declare module '@tiptap/extension-image' {
+  export interface ImageOptions {
+    internalDomains?: string[];
+    onUploadImage?: (formData: FormData) => Promise<UploadResult>;
+  }
+}
+
+export type MediaType = "image" | "link";
 
 export interface MediaFactoryConfig {
   onUploadImage(form: FormData): Promise<UploadResult>;

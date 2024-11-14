@@ -27,4 +27,19 @@
   & .media-image-wrapper.ProseMirror-selectednode .media-controls {
     display: flex;
   }
+
+  & .link-wrapper {
+    position: relative;
+    display: inline-block;
+  }
+
+  & .link {
+    color: theme('colors.primary.DEFAULT');
+    text-decoration: underline;
+    text-decoration-style: dotted;
+  }
+
+  & .link:hover {
+    text-decoration-style: solid;
+  }
 }

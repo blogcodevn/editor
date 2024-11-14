@@ -1,7 +1,7 @@
 import { createRoot } from "react-dom/client";
 import { Image as TiptapImage } from "@tiptap/extension-image";
-import ImageFloating from "./image-floating";
 import { isAllowedUrl } from "../common/utils";
+import ImageFloating from "./image-floating";
 
 const Image = TiptapImage.extend({
   addAttributes() {
@@ -26,17 +26,15 @@ const Image = TiptapImage.extend({
       const img = createImage(HTMLAttributes);
       const portalContainer = createPortalContainer();
       
-      // Setup position handlers
       const { updatePosition, cleanup } = setupPositionHandlers(wrapperDiv, portalContainer);
-
-      const internalDomains = editor.extensionManager.options?.image?.internalDomains;
-     
+      const imageExtensions = editor.extensionManager.extensions.find(extension => extension.name === 'image');
+      const internalDomains = imageExtensions?.options?.internalDomains;
       const showSync = HTMLAttributes.src && !isAllowedUrl(HTMLAttributes.src, internalDomains);
 
       const handleSync = async () => {
-        const onUploadImage = (editor.options as any).onUploadImage;
-        if (!onUploadImage || !getPos) return;
+        const onUploadImage = imageExtensions?.options?.onUploadImage;
 
+        if (!onUploadImage || !getPos) return;
         try {
           const response = await fetch(HTMLAttributes.src);
           const blob = await response.blob();
@@ -56,7 +54,6 @@ const Image = TiptapImage.extend({
         }
       };
 
-      
       // Create floating controls
       const root = createRoot(portalContainer);
       root.render(

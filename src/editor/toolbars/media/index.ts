@@ -1,2 +1,1 @@
-export { default as MediaExtensions } from "./extensions";
-export { default as createMediaGroup } from "./factory";
+export { default as mediaFactory } from "./factory";
