@@ -1,12 +1,14 @@
 import { FC, useCallback, useMemo } from "react";
-import { CommonGroupProps, EditorIcon } from "../../types";
-import { Redo, Undo } from "lucide-react";
-import ToolbarButton from "../common/toolbar-button";
-import Group from "../common/group";
+import { CommonGroupProps } from "@blogcode/editor/types";
+import { SvgIcon } from "@blogcode/editor/icons/svg-icon";
+import ToolbarButton from "@blogcode/editor/toolbars/common/toolbar-button";
+import Group from "@blogcode/editor/toolbars/common/group";
+import IconUndo from "@blogcode/editor/icons/icon-undo";
+import IconRedo from "@blogcode/editor/icons/icon-redo";
 
 export type HistoryType = "undo" | "redo";
 
-export type HistoryGroupIcons = Record<HistoryType, EditorIcon>;
+export type HistoryGroupIcons = Record<HistoryType, SvgIcon>;
 
 export type HeadingGroupProps = CommonGroupProps<HistoryType, HistoryGroupIcons>;
 
@@ -16,13 +18,13 @@ const HistoryGroup: FC<HeadingGroupProps> = (props) => {
   const items = useMemo(() => [
     {
       type: "undo",
-      Icon: (icons as HistoryGroupIcons).undo || Undo,
+      Icon: (icons as HistoryGroupIcons).undo || IconUndo,
       onClick: () => editor?.chain().focus().undo().run(),
       active: false,
     },
     {
       type: "redo",
-      Icon: (icons as HistoryGroupIcons).redo || Redo,
+      Icon: (icons as HistoryGroupIcons).redo || IconRedo,
       onClick: () => editor?.chain().focus().redo().run(),
       active: false,
     }

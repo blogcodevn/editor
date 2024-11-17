@@ -1,31 +1,38 @@
 import { FC, useCallback, useMemo, useRef, useState } from "react";
 import { toHtml } from "hast-util-to-html";
-import { Activity, Boxes, ChevronDown, Code, Database, GitBranch, Target } from "lucide-react";
-import { CommonGroupProps, EditorIcon } from "../../types";
-import { handleJSX, lowlight } from "./utils";
-import MarkdownIt from "markdown-it";
-import Group from "../common/group";
-import ToolbarButton from "../common/toolbar-button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import Modal, { ModalRef } from "../common/modal";
-import MermaidForm from "./mermaid-form";
+import { handleJSX, lowlight } from "./utils";
 import { DialogFooter } from "@/components/ui/dialog";
-import Button from "../common/button";
+import { CommonGroupProps } from "@blogcode/editor/types";
+import { SvgIcon } from "@blogcode/editor/icons/svg-icon";
+import Modal, { ModalRef } from "@blogcode/editor/toolbars/common/modal";
+import MarkdownIt from "markdown-it";
+import MermaidForm from "./mermaid-form";
+import Group from "@blogcode/editor/toolbars/common/group";
+import Button from "@blogcode/editor/toolbars/common/button";
+import ToolbarButton from "@blogcode/editor/toolbars/common/toolbar-button";
+import IconCodeBlock from "@blogcode/editor/icons/icon-code-block";
+import IconDatabaseChart from "@blogcode/editor/icons/icon-database-chart";
+import IconFlowChart from "@blogcode/editor/icons/icon-flow-chart";
+import IconSequenceChart from "@blogcode/editor/icons/icon-sequence-chart";
+import IconClassChart from "@blogcode/editor/icons/icon-class-chart";
+import IconStateChart from "@blogcode/editor/icons/icon-state-chart";
+import IconChevronDown from "@/editor/icons/icon-chevron-down";
 
 export type MarkdownType = "codeBlock" | "dbdiagram" | "flowchart";
 
 export type MarkdownGroupIcons = {
-  codeBlock: EditorIcon;
-  dbdiagram?: EditorIcon; 
-  flowchart?: EditorIcon;
+  codeBlock: SvgIcon;
+  dbdiagram?: SvgIcon; 
+  flowchart?: SvgIcon;
 };
 
 const MERMAID_TYPES = [
-  { value: 'erDiagram', label: 'Entity Relationship', icon: Database },
-  { value: 'flowchart', label: 'Flowchart', icon: GitBranch },
-  { value: 'sequenceDiagram', label: 'Sequence', icon: Activity },
-  { value: 'classDiagram', label: 'Class', icon: Boxes },
-  { value: 'stateDiagram', label: 'State', icon: Target },
+  { value: 'erDiagram', label: 'Entity Relationship', icon: IconDatabaseChart },
+  { value: 'flowchart', label: 'Flowchart', icon: IconFlowChart },
+  { value: 'sequenceDiagram', label: 'Sequence', icon: IconSequenceChart },
+  { value: 'classDiagram', label: 'Class', icon: IconClassChart },
+  { value: 'stateDiagram', label: 'State', icon: IconStateChart },
 ];
 
 export type MarkdownGroupProps = CommonGroupProps<MarkdownType, MarkdownGroupIcons>;
@@ -40,7 +47,7 @@ const ToolbarGroup: FC<MarkdownGroupProps> = (props) => {
   const items = useMemo(() => [
     {
       type: "codeBlock",
-      Icon: (icons as MarkdownGroupIcons).codeBlock || Code,
+      Icon: (icons as MarkdownGroupIcons).codeBlock || IconCodeBlock,
       onClick: () => editor?.chain().focus().toggleCodeBlock().run(),
       active: !!editor?.isActive("codeBlock"),
     },
@@ -96,7 +103,7 @@ const ToolbarGroup: FC<MarkdownGroupProps> = (props) => {
           <Popover>
             <PopoverTrigger asChild>
               <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200">
-                <ChevronDown className="w-4 h-4" />
+                <IconChevronDown className="w-4 h-4" />
               </button>
             </PopoverTrigger>
             <PopoverContent className="w-48 p-1">

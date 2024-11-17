@@ -3,25 +3,29 @@
     position: relative;
     margin: 1rem 0;
   }
-  
+
+  & [data-table-color] {
+    --blogcode-table-color: attr(data-table-color);
+  }
+
   & table {
     width: 100%;
     border-collapse: collapse;
   }
-  
-  & table[data-full-width] {
-    width: 100%;
+
+  & [data-table-full] {
+    & table {
+      width: 100%;
+    }
   }
-  
-  & table:not([data-full-width]) {
-    width: auto;
+
+  & [data-table-center] {
+    & table {
+      margin-left: auto;
+      margin-right: auto;
+    }
   }
-  
-  & table[data-centered] {
-    margin-left: auto;
-    margin-right: auto;
-  }
-  
+
   & .table-wrapper.selected::after {
     content: '';
     position: absolute;
@@ -29,9 +33,29 @@
     left: -2px;
     right: -2px;
     bottom: -2px;
-    border: 2px solid theme('colors.primary.DEFAULT');
+    border: 1px solid theme('colors.primary.DEFAULT');
     border-radius: 4px;
     pointer-events: none;
+  }
+
+  & {
+    & table {
+      border: 1px solid var(--blogcode-table-color, #4b5563);
+
+      & th:not(:last-of-type), & td:not(:last-of-type) {
+        border-right: 1px solid var(--blogcode-table-color, #4b5563);
+      }
+
+      & th {
+        border-bottom: 1px solid var(--blogcode-table-color, #4b5563);
+      }
+
+      & tr:not(:last-of-type) {
+        & td {
+          border-bottom: 1px solid var(--blogcode-table-color, #4b5563);
+        }
+      }
+    }
   }
   
   & .table-floating-controls {

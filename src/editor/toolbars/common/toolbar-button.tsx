@@ -1,17 +1,19 @@
 import { forwardRef, PropsWithChildren } from "react";
-import { EditorIcon, ToolbarButtonClickHandler } from "../../types";
+import { ToolbarButtonClickHandler } from "@blogcode/editor/types";
+import { SvgIcon } from "@blogcode/editor/icons/svg-icon";
 import { cn } from "@/lib/utils";
 
 export interface ToolbarButtonProps {
   className?: string;
   active: boolean;
-  Icon: EditorIcon;
+  Icon: SvgIcon;
+  iconSise?: number;
   onClick?: ToolbarButtonClickHandler;
 }
 
 const ToolbarButton = forwardRef<HTMLButtonElement, PropsWithChildren<ToolbarButtonProps>>(
   function ToolbarButton(props, ref) {
-    const { active, Icon, onClick, className, children } = props;
+    const { active, Icon, onClick, className, iconSise, children } = props;
     
     return (
       <button
@@ -24,7 +26,7 @@ const ToolbarButton = forwardRef<HTMLButtonElement, PropsWithChildren<ToolbarBut
           className
         )}
       >
-        <Icon className="w-4 h-4" />
+        <Icon size={iconSise} className="w-4 h-4" />
         {children}
       </button>
     );

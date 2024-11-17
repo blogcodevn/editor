@@ -1,22 +1,24 @@
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Image, Link } from "lucide-react";
-import { CommonGroupProps, EditorIcon } from "../../types";
+import { CommonGroupProps } from "@blogcode/editor/types";
 import { ImageValue, MediaFactoryConfig, MediaType } from "./types";
 import { Label } from "@/components/ui/label";
 import { DialogFooter } from "@/components/ui/dialog";
-import Modal, { ModalRef } from "../common/modal";
-import ImageForm from "../common/image-form";
-import Button from "../common/button";
-import Group from "../common/group";
-import ToolbarButton from "../common/toolbar-button";
-import TextInput from "../common/text-input";
-import Select from "../common/select";
-import "./media.css";
+import { SvgIcon } from "@blogcode/editor/icons/svg-icon";
+import Modal, { ModalRef } from "@blogcode/editor/toolbars/common/modal";
 import LinkForm, { LinkFormValue } from "./link-form";
+import ImageForm from "@blogcode/editor/toolbars/common/image-form";
+import Button from "@blogcode/editor/toolbars/common/button";
+import Group from "@blogcode/editor/toolbars/common/group";
+import ToolbarButton from "@blogcode/editor/toolbars/common/toolbar-button";
+import TextInput from "@blogcode/editor/toolbars/common/text-input";
+import Select from "@blogcode/editor/toolbars/common/select";
+import IconLink from "@blogcode/editor/icons/icon-link";
+import IconImage from "@blogcode/editor/icons/icon-image";
+import "./media.css";
 
 export interface MediaGroupIcons {
-  image?: EditorIcon;
-  link?: EditorIcon;
+  image?: SvgIcon;
+  link?: SvgIcon;
 }
 
 export type MediaGroupProps = CommonGroupProps<MediaType, MediaGroupIcons> & MediaFactoryConfig;
@@ -68,13 +70,13 @@ const MediaGroup: FC<MediaGroupProps> = (props) => {
   const items = useMemo(() => [
     {
       type: "link" as const,
-      Icon: icons.link || Link,
+      Icon: icons.link || IconLink,
       onClick: handleClickLink,
       active: editor?.isActive('link') || false,
     },
     {
       type: "image" as const,
-      Icon: icons.image || Image,
+      Icon: icons.image || IconImage,
       onClick: () => modalRef.current?.open(),
       active: false,
     },

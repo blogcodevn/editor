@@ -39,7 +39,9 @@ const MermaidForm: FC<MermaidFormProps> = ({ className, type, content, onChange 
       </div>
       <div className="rounded-md border border-gray-200 dark:border-gray-700 bg-gray-100/50 dark:bg-gray-800/50 p-4">
         <div className="mermaid">
+          ```mermaid
           {type}\n{content}
+          ```
         </div>
       </div>
     </div>

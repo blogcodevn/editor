@@ -1,13 +1,15 @@
 import { FC, useCallback, useMemo } from "react";
-import { Droplet, Palette } from "lucide-react";
-import { CommonGroupProps, EditorIcon, PropsWithEditor } from "../../types";
+import { CommonGroupProps, PropsWithEditor } from "@blogcode/editor/types";
+import { SvgIcon } from "@blogcode/editor/icons/svg-icon";
 import Picker, { PickerType } from "./picker";
-import Group from "../common/group";
+import Group from "@blogcode/editor/toolbars/common/group";
+import IconColor from "@/editor/icons/icon-color";
+import IconBackground from "@/editor/icons/icon-background";
 import "./colors.css";
 
 export interface ColorsGroupIcons {
-  textStyle?: EditorIcon;
-  highlight?: EditorIcon;
+  textStyle?: SvgIcon;
+  highlight?: SvgIcon;
 };
 
 export type ColorsGroupProps = CommonGroupProps<PickerType, ColorsGroupIcons>;
@@ -18,11 +20,11 @@ const ColorsGroup: FC<PropsWithEditor<ColorsGroupProps>> = (props) => {
   const items = useMemo(() => [
     {
       type: "textStyle",
-      Icon: icons.textStyle || Palette,
+      Icon: icons.textStyle || IconColor,
     },
     {
       type: "highlight",
-      Icon: icons.highlight || Droplet,
+      Icon: icons.highlight || IconBackground,
     }
   ] as const, [icons]);
 

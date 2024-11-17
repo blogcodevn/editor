@@ -16,7 +16,7 @@ const Toolbar: FC<PropsWithEditor<ToolbarProps>> = (props) => {
   }
 
   return (
-    <div className="w-full flex items-center gap-1 px-2 border-b border-solid border-gray-300 dark:border-gray-600">
+    <div className="w-full flex items-center gap-1 px-2 border-b border-solid border-slate-600">
       {group.map((Item, index) => (
         <Fragment key={index}>
           <Item editor={editor} />

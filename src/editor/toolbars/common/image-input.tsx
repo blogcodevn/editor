@@ -1,6 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { ChangeEvent, ForwardedRef, forwardRef, MouseEvent, ReactNode, useEffect, useRef, useState } from "react";
-import { Info, Upload } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -8,6 +7,8 @@ import { cn } from "@/lib/utils";
 import { isAllowedUrl } from "./utils";
 import TextInput, { TextInputProps } from "./text-input";
 import Button from "./button";
+import IconInfoCircle from "@blogcode/editor/icons/icon-info-circle";
+import IconUpload from "@blogcode/editor/icons/icon-upload";
 
 export interface UploadResult {
   url?: string;
@@ -109,7 +110,7 @@ function ForwardImageInput(props: ImageInputProps, ref: ForwardedRef<HTMLInputEl
             className="-ml-3 mr-[-13px] h-8 mt-[-1px] rounded-l-none"
             onClick={handleClickChooseFile}
           >
-            <Upload size={16} />
+            <IconUpload size={16} />
           </Button>
         </TooltipTrigger>
         <TooltipContent
@@ -138,7 +139,7 @@ function ForwardImageInput(props: ImageInputProps, ref: ForwardedRef<HTMLInputEl
       {(allowedDomains && allowedDomains.length > 0) || !!infoTitle && (
         <Tooltip>
           <TooltipTrigger asChild>
-            <Info size={16} className="text-gray-400 cursor-help" />
+            <IconInfoCircle size={16} className="text-gray-400 cursor-help" />
           </TooltipTrigger>
           <TooltipContent>
             <p className="font-semibold mb-1">{infoTitle || "Allowed Domains"}</p>

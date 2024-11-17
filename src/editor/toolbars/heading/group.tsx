@@ -1,23 +1,29 @@
 import { FC, useCallback } from "react";
 import { Level } from "@tiptap/extension-heading";
-import { CommonGroupProps, EditorIcon } from "../../types";
-import { Heading1, Heading2, Heading3, Heading4, Heading5, Heading6 } from "lucide-react";
-import Group from "../common/group";
-import ToolbarButton from "../common/toolbar-button";
+import { SvgIcon } from "@blogcode/editor/icons/svg-icon";
+import { CommonGroupProps } from "@blogcode/editor/types";
+import Group from "@blogcode/editor/toolbars/common/group";
+import IconH1 from "@blogcode/editor/icons/icon-h1";
+import IconH2 from "@blogcode/editor/icons/icon-h2";
+import IconH3 from "@blogcode/editor/icons/icon-h3";
+import IconH4 from "@blogcode/editor/icons/icon-h4";
+import IconH5 from "@blogcode/editor/icons/icon-h5";
+import IconH6 from "@blogcode/editor/icons/icon-h6";
+import ToolbarButton from "@blogcode/editor/toolbars/common/toolbar-button";
 
 export type HeadingType = `heading${1 | 2 | 3 | 4 | 5 | 6}`;
 
-export type HeadingGroupIcons = Record<HeadingType, EditorIcon>;
+export type HeadingGroupIcons = Record<HeadingType, SvgIcon>;
 
 export type HeadingGroupProps = CommonGroupProps<HeadingType, HeadingGroupIcons>;
 
 const defaultIcons = [
-  Heading1,
-  Heading2,
-  Heading3,
-  Heading4,
-  Heading5,
-  Heading6,
+  IconH1,
+  IconH2,
+  IconH3,
+  IconH4,
+  IconH5,
+  IconH6,
 ];
 
 const HeadingGroup: FC<HeadingGroupProps> = (props) => {
@@ -30,7 +36,7 @@ const HeadingGroup: FC<HeadingGroupProps> = (props) => {
   }, [editor]);
 
   const renderButton = useCallback(
-    (type: HeadingType, Icon: EditorIcon) => {
+    (type: HeadingType, Icon: SvgIcon) => {
       if (!isIncluded(type)) {
         return null;
       }

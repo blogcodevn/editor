@@ -1,12 +1,16 @@
 import { FC, useCallback, useMemo } from "react";
-import { List, ListOrdered, Quote, Type } from "lucide-react";
-import { CommonGroupProps, EditorIcon } from "../../types";
-import ToolbarButton from "../common/toolbar-button";
-import Group from "../common/group";
+import { CommonGroupProps } from "@blogcode/editor/types";
+import { SvgIcon } from "@blogcode/editor/icons/svg-icon";
+import Group from "@blogcode/editor/toolbars/common/group";
+import ToolbarButton from "@blogcode/editor/toolbars/common/toolbar-button";
+import IconParagraph from "@blogcode/editor/icons/icon-paragraph";
+import IconBlockquote from "@blogcode/editor/icons/icon-blockquote";
+import IconListBullet from "@blogcode/editor/icons/icon-list-bullet";
+import IconListOrdered from "@blogcode/editor/icons/icon-list-ordered";
 
 export type BlockType = "paragraph" | "blockquote" | "bulletList" | "orderedList";
 
-export type BlockGroupIcons = Record<BlockType, EditorIcon>;
+export type BlockGroupIcons = Record<BlockType, SvgIcon>;
 
 export type BlockGroupProps = CommonGroupProps<BlockType, BlockGroupIcons>;
 
@@ -16,25 +20,25 @@ const BlockGroup: FC<BlockGroupProps> = (props) => {
   const items = useMemo(() => [
     {
       type: "paragraph",
-      Icon: (icons as BlockGroupIcons).paragraph || Type,
+      Icon: (icons as BlockGroupIcons).paragraph || IconParagraph,
       onClick: () => editor?.chain().focus().setParagraph().run(),
       active: !!editor?.isActive("paragraph"),
     },
     {
       type: "blockquote",
-      Icon: (icons as BlockGroupIcons).blockquote || Quote,
+      Icon: (icons as BlockGroupIcons).blockquote || IconBlockquote,
       onClick: () => editor?.chain().focus().toggleBlockquote().run(),
       active: !!editor?.isActive("blockquote"),
     },
     {
       type: "bulletList",
-      Icon: (icons as BlockGroupIcons).bulletList || List,
+      Icon: (icons as BlockGroupIcons).bulletList || IconListBullet,
       onClick: () => editor?.chain().focus().toggleBulletList().run(),
       active: !!editor?.isActive("bulletList"),
     },
     {
       type: "orderedList",
-      Icon: (icons as BlockGroupIcons).orderedList || ListOrdered,
+      Icon: (icons as BlockGroupIcons).orderedList || IconListOrdered,
       onClick: () => editor?.chain().focus().toggleOrderedList().run(),
       active: !!editor?.isActive("orderedList"),
     }
