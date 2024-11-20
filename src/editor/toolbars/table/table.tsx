@@ -1,7 +1,6 @@
 import { createRoot } from "react-dom/client";
 import { Table as TiptapTable } from "@tiptap/extension-table";
 import TableFloating from "./floating";
-import Util from "../../util";
 
 const Table = TiptapTable.extend({
   addAttributes() {
@@ -9,42 +8,60 @@ const Table = TiptapTable.extend({
       ...this.parent?.(),
       isFullWidth: {
         default: true,
-        parseHTML: element => element.parentElement?.hasAttribute("data-table-full"),
-        renderHTML: attributes => {
-          return attributes.isFullWidth ? { "data-table-full": "" } : {}
+        parseHTML: (element) => {
+          const width = element.style.width;
+          return width === "100%" || !width;
+        },
+        renderHTML: (attributes) => {
+          return attributes.isFullWidth ? { width: "100%" } : {};
         }
       },
       alignment: {
         default: "left",
-        parseHTML: element => {
-          const noDefault = ["center", "right"];
-          const value = element.getAttribute("data-table-alignment") || "left";
-          return noDefault.includes(value) ? value : "left";
+        parseHTML: (element) => {
+          const ml = element.style.marginLeft;
+          const mr = element.style.marginRight;
+          
+          if (ml === "auto" && mr === "auto") {
+            return "center";
+          }
+
+          if (ml === "auto" && mr === "0px") {
+            return "right";
+          }
+
+          return "left";
         },
         renderHTML: attributes => {
-          return { "data-table-alignment": attributes.alignment };
+          const margin = {
+            left: { marginLeft: "auto", marginRight: "0px" },
+            center: { marginLeft: "auto", marginRight: "auto" },
+            right: { marginLeft: "0px", marginRight: "auto" },
+          };
+          
+          return margin[attributes.alignment as "left" | "center" | "right"];
         }
       },
       caption: {
         default: null,
-        parseHTML: element => {
+        parseHTML: (element) => {
           const caption = element.querySelector("caption")
-          return caption?.innerHTML
+          return caption?.innerHTML;
         },
-        renderHTML: attributes => {
-          if (!attributes.caption) return {}
-          
-          const caption = document.createElement("caption")
-          caption.innerHTML = attributes.caption
-          return { caption: caption.outerHTML }
+        renderHTML: (attributes) => {
+          if (!attributes.caption) {
+            return {};
+          }
+
+          const caption = document.createElement("caption");
+          caption.innerHTML = attributes.caption;
+          return { caption: caption.outerHTML };
         }
       },
       borderColor: {
         default: "#4b5563",
         parseHTML: (element) => {
-          const parent = element.parentElement;
-          const borderColor = parent?.style.getPropertyValue("--blogcode-table-color");
-          return borderColor || "#4b5563";
+          return element.style.getPropertyValue("--blogcode-table-color") || "#4b5563";
         },
         renderHTML: (attributes) => {
           return {
@@ -55,37 +72,54 @@ const Table = TiptapTable.extend({
     }
   },
   addNodeView() {
-    return ({ HTMLAttributes, editor }) => {
-      const wrapper = document.createElement("div");
-      wrapper.classList.add("table-wrapper");
-
-      Object.entries(HTMLAttributes).forEach(([key, value]) => {
-        if (key.startsWith("--")) {
-          wrapper.style.setProperty(key, value);
-        } else {
-          wrapper.setAttribute(key, value);
-        }
-      });
-      
+    return ({ node, editor }) => {
       const table = document.createElement("table");
+      const tableAttrs = node.attrs;
+
+      console.log(tableAttrs);
+
+      if (tableAttrs.borderColor) {
+        table.style.setProperty("--blogcode-table-color", tableAttrs.borderColor);
+      }
+
+      if (tableAttrs.isFullWidth) {
+        table.style.width = "100%";
+      } else {
+        table.style.width = "auto";
+        switch (tableAttrs.alignment) {
+          case 'left':
+            table.style.marginRight = 'auto';
+            table.style.marginLeft = '0px';
+            break;
+          case 'center':
+            table.style.marginLeft = 'auto';
+            table.style.marginRight = 'auto';
+            break;
+          case 'right':
+            table.style.marginLeft = 'auto';
+            table.style.marginRight = '0px';
+            break;
+        }
+      }
+
+      if (tableAttrs.caption) {
+        const captionElement = document.createElement("caption");
+        captionElement.innerHTML = tableAttrs.caption;
+        table.appendChild(captionElement);
+      }
       
       const portalContainer = document.createElement("div");
+      portalContainer.classList.add("fixed", "flex", "justify-end", "items-center");
       portalContainer.setAttribute("data-floating-controls", "");
       document.body.appendChild(portalContainer);
 
       const updatePosition = () => {
-        if (!wrapper.isConnected) return;
+        if (!table.isConnected) return;
 
-        const rect = wrapper.getBoundingClientRect();
-        const isOutOfView = rect.top < 0 || rect.bottom > window.innerHeight;
+        const rect = table.getBoundingClientRect();
+        const editorRect = editor.view.dom.getBoundingClientRect();
+        const isOutOfView = rect.top < editorRect.top || rect.bottom > editorRect.bottom;
 
-        portalContainer.classList.add(...[
-          "fixed",
-          "flex",
-          "justify-end",
-          "items-center",
-        ]);
-        
         // Anchor floating button to table top-right
         portalContainer.style.right = `${window.innerWidth - rect.right}px`;
         portalContainer.style.top = `${rect.top - 10}px`;    // Position slightly above table
@@ -103,110 +137,45 @@ const Table = TiptapTable.extend({
       window.addEventListener("scroll", handleScroll, true);
       window.addEventListener("resize", handleResize);
 
-      wrapper.append(table);
-      
-      const placeholder = document.createElement("p");
-      const br = document.createElement("br");
-      br.classList.add("ProseMirror-trailingBreak");
-      placeholder.append(br);
-
-      const addPlaceholder = () => {
-        if (!wrapper.parentElement) {
-          return;
-        }
-
-        const nextSibling = wrapper.nextElementSibling;
-
-        console.log({ nextSibling });
-
-        if (!nextSibling || (nextSibling.nodeType !== Node.TEXT_NODE && !nextSibling.textContent?.trim())) {
-          wrapper.insertAdjacentElement("afterend", placeholder);
-          return;
-        }
-      };
-
-      const observer = new MutationObserver(() => {
-        if (wrapper.parentElement && !wrapper.nextElementSibling) {
-          addPlaceholder();
-        }
-      });
-
-      observer.observe(editor.view.dom, {
-        childList: true,
-        subtree: true,
-      });
-
       const updateActiveState = () => {
-        const isActive = editor.isActive("table");
-        const hasSelected = wrapper.classList.contains("selected");
+        const pos = editor.view.posAtDOM(table, 0);
+
+        if (pos < 0) {
+          return;
+        }
+
+        const $pos = editor.state.doc.resolve(pos);
+        const tableNode = $pos.node();
+
+        const isActive = (
+          !!tableNode &&
+          editor.state.selection.from >= pos &&
+          editor.state.selection.to <= pos + tableNode.nodeSize
+        );
+
+        const hasSelected = table.classList.contains("selected");
 
         if (isActive) {
-          const domNode = wrapper.querySelector("table");
-          const pos = domNode ? editor.view.posAtDOM(domNode, 0) : -1;
-
-          if (pos < 0) {
-            hasSelected && wrapper.classList.remove("selected");
-            return;
-          }
-
-          const resolvedPos = Util.doc(editor).resolve(pos);
-
-          if (!resolvedPos) {
-            hasSelected && wrapper.classList.remove("selected");
-            return;
-          }
-
-          const anchorPos = Util.$anchor(editor).pos;
-
-          if (anchorPos < pos) {
-            hasSelected && wrapper.classList.remove("selected");
-            return;
-          }
-
-          const tableNode = resolvedPos.node();
-
-          if (!tableNode || tableNode.type.name !== "table") {
-            hasSelected && wrapper.classList.remove("selected");
-            return;
-          }
-
-          const tableSize = tableNode.nodeSize;
-
-          if (anchorPos <= pos + tableSize) {
-            hasSelected || wrapper.classList.add("selected");
-          } else {
-            hasSelected && wrapper.classList.remove("selected");
-          }
+          hasSelected || table.classList.add("selected");
         } else {
-          hasSelected && wrapper.classList.remove("selected");
+          hasSelected && table.classList.remove("selected");
         }
       };
 
       updateActiveState();
       editor.on("transaction", updateActiveState);
 
-      if (editor.isActive("table")) {
-        wrapper.classList.add("selected");
-      }
-
       const root = createRoot(portalContainer);
-      root.render(<TableFloating wrapper={wrapper} editor={editor} updatePosition={updatePosition} />);
+      root.render(<TableFloating table={table} editor={editor} updatePosition={updatePosition} />);
 
       return {
-        dom: wrapper,
+        dom: table,
         contentDOM: table,
         destroy() {
           window.removeEventListener("scroll", handleScroll, true);
           window.removeEventListener("resize", handleResize);
           root.unmount();
           portalContainer.remove();
-
-          observer.disconnect();
-          if (placeholder.parentElement) {
-            placeholder.remove();
-          }
-
-          // interval && clearInterval(interval);
           editor.off("transaction", updateActiveState);
         },
       }

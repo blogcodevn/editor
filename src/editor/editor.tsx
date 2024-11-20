@@ -11,8 +11,8 @@ import { mediaFactory } from "./toolbars/media";
 import { HeadingGroup } from "./toolbars/heading";
 import { HistoryGroup } from "./toolbars/history";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { AlignmentGroup } from "./toolbars/alignment";
-import { IndentGroup } from "./toolbars/indent";
+import { AlignmentExtensions, AlignmentGroup } from "./toolbars/alignment";
+import { IndentExtensions, IndentGroup } from "./toolbars/indent";
 import Toolbar from "./toolbars/toolbar";
 import StarterKit from "@tiptap/starter-kit";
 import "./editor.css";
@@ -51,7 +51,9 @@ const Editor: FC<EditorProps> = (props) => {
       ...BasicExtensions,
       ...FontExtensions,
       ...ColorsExtensions,
+      ...AlignmentExtensions,
       ...BlockExtensions,
+      ...IndentExtensions,
       ...TableExtensions,
       ...MediaExtensions,
       ...MarkdownExtensions

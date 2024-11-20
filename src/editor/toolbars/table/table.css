@@ -1,32 +1,10 @@
 .blogcode-editor-content > [contenteditable=true] {
-  & .table-wrapper {
-    position: relative;
-    margin: 1rem 0;
-  }
-
-  & [data-table-color] {
-    --blogcode-table-color: attr(data-table-color);
-  }
 
   & table {
-    width: 100%;
     border-collapse: collapse;
   }
 
-  & [data-table-full] {
-    & table {
-      width: 100%;
-    }
-  }
-
-  & [data-table-center] {
-    & table {
-      margin-left: auto;
-      margin-right: auto;
-    }
-  }
-
-  & .table-wrapper.selected::after {
+  & table.selected::after {
     content: '';
     position: absolute;
     top: -2px;
@@ -54,6 +32,12 @@
         & td {
           border-bottom: 1px solid var(--blogcode-table-color, #4b5563);
         }
+      }
+
+      & th, & td {
+        padding: 0.5rem;
+        text-align: left;
+        min-width: 60px;
       }
     }
   }

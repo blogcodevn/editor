@@ -1,24 +1,24 @@
 import { FC } from "react";
+import { withCollapse } from "./with-collapse";
 import FAB from "@blogcode/editor/toolbars/common/fab";
 import IconEnterRow from "@blogcode/editor/icons/icon-enter-row";
-import { withCollapse } from "./with-collapse";
 
 export interface NewLineProps {
-  wrapper: HTMLDivElement;
+  table: HTMLTableElement;
 }
 
 const NewLineButton: FC<NewLineProps> = (props) => {
-  const { wrapper } = props;
+  const { table } = props;
 
   const handleAddPlaceholder = () => {
-    if (wrapper?.parentElement) {
+    if (table?.parentElement) {
       const placeholder = document.createElement("p");
       const br = document.createElement("br");
 
       br.classList.add("ProseMirror-trailingBreak");
       placeholder.append(br);
 
-      wrapper.insertAdjacentElement("afterend", placeholder);
+      table.insertAdjacentElement("afterend", placeholder);
     }
   }
 
@@ -26,7 +26,7 @@ const NewLineButton: FC<NewLineProps> = (props) => {
     <FAB
       title="Insert new line"
       color="success"
-      icon={IconEnterRow as any}
+      icon={IconEnterRow}
       onClick={handleAddPlaceholder}
     />
   );

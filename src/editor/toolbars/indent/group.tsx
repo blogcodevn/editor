@@ -1,6 +1,4 @@
-// src/editor/toolbars/indent/group.tsx
 import { FC } from 'react';
-import { IndentIncrease, IndentDecrease } from 'lucide-react';
 import { CommonGroupProps } from '@blogcode/editor/types';
 import ToolbarButton from '@blogcode/editor/toolbars/common/toolbar-button';
 import Group from '@blogcode/editor/toolbars/common/group';
@@ -11,18 +9,19 @@ export type IndentType = "indent" | "outdent";
 
 const IndentGroup: FC<CommonGroupProps<IndentType>> = (props) => {
   const { editor } = props;
+  const currentIndent = editor?.getAttributes("paragraph")?.indent || 0;
 
   return (
     <Group>
       <ToolbarButton
         Icon={IconIndent}
-        onClick={() => editor?.chain().focus().outdent().run()}
-        active={false}
+        onClick={() => editor?.chain().focus().indent().run()}
+        active={currentIndent < 8}
       />
       <ToolbarButton
         Icon={IconOutdent}
-        onClick={() => editor?.chain().focus().indent().run()}
-        active={false}
+        onClick={() => editor?.chain().focus().outdent().run()}
+        active={currentIndent > 0}
       />
     </Group>
   );
