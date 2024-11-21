@@ -1,4 +1,3 @@
-// src/editor/toolbars/media/link.tsx
 import { Link as TiptapLink } from '@tiptap/extension-link';
 import { NodeViewProps } from '@tiptap/react';
 import { createRoot } from 'react-dom/client';
@@ -21,32 +20,32 @@ const Link = TiptapLink.extend({
   },
   addNodeView() {
     return ({ editor, getPos, node }: NodeViewProps) => {
-      const wrapper = document.createElement('div');
-      wrapper.classList.add('link-wrapper');
+      // const wrapper = document.createElement('div');
+      // wrapper.classList.add('link-wrapper');
       
       const a = document.createElement('a');
       a.href = node.attrs.href;
       a.target = node.attrs.target || '_blank';
       a.rel = 'noopener noreferrer';
       a.classList.add('link');
-      wrapper.append(a);
+      // wrapper.append(a);
 
       const portalContainer = document.createElement('div');
       portalContainer.setAttribute('data-floating-controls', '');
       document.body.appendChild(portalContainer);
+      portalContainer.classList.add("fixed", "flex", "items-center", "justify-start", "z-50")
 
       const updatePosition = () => {
-        if (!wrapper.isConnected) return;
+        if (!a.isConnected) return;
 
-        const rect = wrapper.getBoundingClientRect();
-        const isOutOfView = rect.top < 0 || rect.bottom > window.innerHeight;
+        const rect = a.getBoundingClientRect();
+        const editorRect = editor.view.dom.getBoundingClientRect();
+        const isOutOfView = rect.top < editorRect.top || rect.bottom > editorRect.bottom;
 
-        portalContainer.style.position = 'fixed';
         portalContainer.style.left = `${rect.left}px`;
         portalContainer.style.top = `${rect.top - 40}px`;
         portalContainer.style.visibility = isOutOfView ? 'hidden' : 'visible';
         portalContainer.style.pointerEvents = isOutOfView ? 'none' : 'auto';
-        portalContainer.style.zIndex = '50';
       };
 
       const handleScroll = () => requestAnimationFrame(updatePosition);
@@ -67,7 +66,7 @@ const Link = TiptapLink.extend({
       requestAnimationFrame(updatePosition);
 
       return {
-        dom: wrapper,
+        dom: a,
         contentDOM: a,
         destroy() {
           window.removeEventListener('scroll', handleScroll, true);

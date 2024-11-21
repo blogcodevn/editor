@@ -1,4 +1,5 @@
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { TextSelection } from "prosemirror-state";
 import { CommonGroupProps } from "@blogcode/editor/types";
 import { ImageValue, MediaFactoryConfig, MediaType } from "./types";
 import { Label } from "@/components/ui/label";
@@ -21,6 +22,12 @@ export interface MediaGroupIcons {
   link?: SvgIcon;
 }
 
+interface SavedRange {
+  from: number;
+  to: number;
+  isActive: boolean;
+}
+
 export type MediaGroupProps = CommonGroupProps<MediaType, MediaGroupIcons> & MediaFactoryConfig;
 
 const MediaGroup: FC<MediaGroupProps> = (props) => {
@@ -29,6 +36,7 @@ const MediaGroup: FC<MediaGroupProps> = (props) => {
   const modalRef = useRef<ModalRef>(null);
   const [loading, setLoading] = useState(false);
   const [formValue, setFormValue] = useState<Partial<ImageValue>>({});
+  const [savedRange, setSavedRange] = useState<SavedRange | null>(null);
 
   const linkModalRef = useRef<ModalRef>(null);
   const [linkLoading, setLinkLoading] = useState(false);
@@ -37,13 +45,13 @@ const MediaGroup: FC<MediaGroupProps> = (props) => {
   const handleClickLink = useCallback(() => {
     if (!editor) return;
 
-    if (editor.isActive('link')) {
+    const { from, to } = editor.state.selection;
+    const isActive = editor.isActive('link');
+    setSavedRange({ from, to, isActive });
+
+    if (isActive) {
       const attrs = editor.getAttributes('link');
-      const text = editor.state.doc.textBetween(
-        editor.state.selection.$from.pos,
-        editor.state.selection.$to.pos,
-        '',
-      );
+      const text = editor.state.doc.textBetween(from, to, '');
       setLinkValue({
         url: attrs.href,
         text,
@@ -53,17 +61,14 @@ const MediaGroup: FC<MediaGroupProps> = (props) => {
         class: attrs.class,
       });
     } else {
-      const text = editor.state.doc.textBetween(
-        editor.state.selection.$from.pos,
-        editor.state.selection.$to.pos,
-        '',
-      );
+      const text = editor.state.doc.textBetween(from, to, '');
       setLinkValue({ 
         text, 
         target: '_blank', 
         title: text,
       });
     }
+
     linkModalRef.current?.open();
   }, [editor]);
 
@@ -137,7 +142,6 @@ const MediaGroup: FC<MediaGroupProps> = (props) => {
         })
         .run();
    
-      // Cập nhật thêm style và caption
       const node = editor.state.doc.nodeAt(editor.state.selection.$anchor.pos);
       if (node) {
         editor
@@ -169,17 +173,34 @@ const MediaGroup: FC<MediaGroupProps> = (props) => {
         class: linkValue.class || null
       };
 
-      if (linkValue.text && !editor.isActive('link')) {
-        // Insert link mới với text mới
+      if (!savedRange?.isActive) {
+        const linkContent = {
+          type: 'text',
+          marks: [{
+            type: 'link',
+            attrs
+          }],
+          text: linkValue.text
+        };
+
         editor.chain()
           .focus()
-          .insertContent(linkValue.text)
+          .command(({ tr }) => {
+            if (!savedRange) return true;
+            tr.setSelection(TextSelection.create(tr.doc, savedRange.from, savedRange.to));
+            return true;
+          })
+          .insertContent(linkContent)
           .setLink(attrs)
           .run();
       } else {
-        // Update link hiện tại hoặc convert selection thành link
         editor.chain()
           .focus()
+          .command(({ tr }) => {
+            if (!savedRange) return true;
+            tr.setSelection(TextSelection.create(tr.doc, savedRange.from, savedRange.to));
+            return true;
+          })
           .setLink(attrs)
           .run();
       }
@@ -187,7 +208,9 @@ const MediaGroup: FC<MediaGroupProps> = (props) => {
     } catch (error) {
       console.error('Failed to insert/update link:', error);
     }
+
     setLinkLoading(false);
+    setSavedRange(null);
   };
 
   const renderButton = useCallback(
